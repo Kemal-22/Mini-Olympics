@@ -126,3 +126,69 @@ class Initialized:
         self.running_initialized = False
         self.leaderboard_initialized = False
         self.jumping_initialized = False
+
+
+class Text:
+    def __init__(self, text: str, position, font, font_size=48, color=(25, 25, 25), antialiasing=True):
+        self.text = text
+        self.font_size = font_size
+        self.font_name = font
+        self.font = pygame.font.Font(font, self.font_size)
+        self.color = color
+        self.antialiasing = antialiasing
+        self.text_surface = self.font.render(self.text, self.antialiasing, self.color)
+
+        self.rect = self.text_surface.get_rect()
+        self.width = self.rect.width
+        self.height = self.rect.height
+
+        self.position = (position[0], position[1])
+
+    def render(self, screen):
+        position = (round(self.rect.center[0] - self.rect.width / 2), round(self.rect.center[1] - self.rect.height / 2))
+        screen.blit(self.text_surface, position)
+
+    def recalculate(self):
+        self.text_surface = self.font.render(self.text, self.antialiasing, self.color)
+        self.rect = self.text_surface.get_rect()
+        self.width = self.rect.width
+        self.height = self.rect.height
+        self.rect.center = (self.position[0], self.position[1])
+
+    def set_text(self, new_text: str):
+        self.text = new_text
+        self.recalculate()
+
+    def set_color(self, new_color: (int, int, int)):
+        self.color = new_color
+        self.recalculate()
+
+    def set_font(self, font_name: str):
+        self.font_name = font_name
+        self.font = pygame.font.SysFont(self.font_name, self.font_size)
+        self.recalculate()
+
+    def set_font_size(self, font_size: int):
+        self.font_size = font_size
+        self.font = pygame.font.SysFont(self.font_name, self.font_size)
+        self.recalculate()
+
+    def set_position(self, position: (int, int)):
+        self.position = position
+        self.recalculate()
+
+    def set_antialiasing(self, antialiasing: bool):
+        self.antialiasing = antialiasing
+        self.recalculate()
+
+    def bold(self, bold: bool):
+        self.font.set_bold(bold)
+        self.recalculate()
+
+    def italic(self, italic: bool):
+        self.font.set_italic(italic)
+        self.recalculate()
+
+    def underline(self, underline: bool):
+        self.font.set_underline(underline)
+        self.recalculate()

@@ -3,6 +3,9 @@ import util
 import math
 
 
+MAIN_FONT = "./font/PublicPixel-0W6DP.ttf"
+
+
 class Player(pygame.sprite.Sprite):
     def __init__(self, id):
         pygame.sprite.Sprite.__init__(self)
@@ -85,102 +88,39 @@ class Player(pygame.sprite.Sprite):
             self.speed = self.max_speed
 
 
-class Timer:
+class TimingClock:
     def __init__(self):
-        self.image = util.Image("time_image.png", 1400, 800)
+        self.start = pygame.time.get_ticks()
+
+    def get_current_time_in_miliseconds(self):
+        current_time = pygame.time.get_ticks()
+        return current_time - self.start
+
+    def get_current_time_in_seconds(self):
+        current_time = pygame.time.get_ticks()
+        return math.floor((current_time - self.start) / 1000)
+
+
+class TimerWidget:
+    def __init__(self):
+        self.image_pos_x = 1400
+        self.image_pos_y = 800
+        self.image = util.Image("time_image.png", self.image_pos_x, self.image_pos_y)
         self.image.resize(30)
-        self.image.move(1400, 800)
-        self.numbersy = 830
-        self.slot_one_x = 1300
-        self.slot_two_x = 1350
-        self.slot_three_x = 1450
-        self.slot_one_zero = util.Image("./timer_numbers/0.png", self.slot_one_x, self.numbersy)
-        self.slot_one_one = util.Image("./timer_numbers/1.png", self.slot_one_x, self.numbersy)
-        self.slot_one_two = util.Image("./timer_numbers/2.png", self.slot_one_x, self.numbersy)
-        self.slot_one_three = util.Image("./timer_numbers/3.png", self.slot_one_x, self.numbersy)
-        self.slot_one_four = util.Image("./timer_numbers/4.png", self.slot_one_x, self.numbersy)
-        self.slot_one_five = util.Image("./timer_numbers/5.png", self.slot_one_x, self.numbersy)
-        self.slot_one_six = util.Image("./timer_numbers/6.png", self.slot_one_x, self.numbersy)
-        self.slot_one_seven = util.Image("./timer_numbers/7.png", self.slot_one_x, self.numbersy)
-        self.slot_one_eight = util.Image("./timer_numbers/8.png", self.slot_one_x, self.numbersy)
-        self.slot_one_nine = util.Image("./timer_numbers/9.png", self.slot_one_x, self.numbersy)
+        self.image.move(self.image_pos_x, self.image_pos_y)
+        self.text_y_position = self.image_pos_y + self.image.get_image_height() / 4
+        self.text_x_position = self.image_pos_x
+        self.text = util.Text("0.00", (self.text_x_position, self.text_y_position), MAIN_FONT, font_size=35,
+                              color=(255, 255, 255))
 
-        self.slot_two_zero = util.Image("./timer_numbers/0.png", self.slot_two_x, self.numbersy)
-        self.slot_two_one = util.Image("./timer_numbers/1.png", self.slot_two_x, self.numbersy)
-        self.slot_two_two = util.Image("./timer_numbers/2.png", self.slot_two_x, self.numbersy)
-        self.slot_two_three = util.Image("./timer_numbers/3.png", self.slot_two_x, self.numbersy)
-        self.slot_two_four = util.Image("./timer_numbers/4.png", self.slot_two_x, self.numbersy)
-        self.slot_two_five = util.Image("./timer_numbers/5.png", self.slot_two_x, self.numbersy)
-        self.slot_two_six = util.Image("./timer_numbers/6.png", self.slot_two_x, self.numbersy)
-        self.slot_two_seven = util.Image("./timer_numbers/7.png", self.slot_two_x, self.numbersy)
-        self.slot_two_eight = util.Image("./timer_numbers/8.png", self.slot_two_x, self.numbersy)
-        self.slot_two_nine = util.Image("./timer_numbers/9.png", self.slot_two_x, self.numbersy)
-
-        self.slot_three_zero = util.Image("./timer_numbers/0.png", self.slot_three_x, self.numbersy)
-        self.slot_three_one = util.Image("./timer_numbers/1.png", self.slot_three_x, self.numbersy)
-        self.slot_three_two = util.Image("./timer_numbers/2.png", self.slot_three_x, self.numbersy)
-        self.slot_three_three = util.Image("./timer_numbers/3.png", self.slot_three_x, self.numbersy)
-        self.slot_three_four = util.Image("./timer_numbers/4.png", self.slot_three_x, self.numbersy)
-        self.slot_three_five = util.Image("./timer_numbers/5.png", self.slot_three_x, self.numbersy)
-        self.slot_three_six = util.Image("./timer_numbers/6.png", self.slot_three_x, self.numbersy)
-        self.slot_three_seven = util.Image("./timer_numbers/7.png", self.slot_three_x, self.numbersy)
-        self.slot_three_eight = util.Image("./timer_numbers/8.png", self.slot_three_x, self.numbersy)
-        self.slot_three_nine = util.Image("./timer_numbers/9.png", self.slot_three_x, self.numbersy)
-
-        self.dot = util.Image("./timer_numbers/dot.png", 0, 0)
-        self.dot.resize(45)
-
-        self.slot_one_numbers = [self.slot_one_zero, self.slot_one_one, self.slot_one_two, self.slot_one_three,
-                                 self.slot_one_four, self.slot_one_five, self.slot_one_six, self.slot_one_seven,
-                                 self.slot_one_eight, self.slot_one_nine]
-        self.slot_two_numbers = [self.slot_two_zero, self.slot_two_one, self.slot_two_two, self.slot_two_three,
-                                 self.slot_two_four, self.slot_two_five, self.slot_two_six, self.slot_two_seven,
-                                 self.slot_two_eight, self.slot_two_nine]
-        self.slot_three_numbers = [self.slot_three_zero, self.slot_three_one, self.slot_three_two, self.slot_three_three,
-                                 self.slot_three_four, self.slot_three_five, self.slot_three_six, self.slot_three_seven,
-                                 self.slot_three_eight, self.slot_three_nine]
-
-        for i in self.slot_one_numbers:
-            i.resize(35)
-            i.move(self.slot_one_x, self.numbersy)
-
-        for j in self.slot_two_numbers:
-            j.resize(35)
-            j.move(self.slot_two_x, self.numbersy)
-
-        for k in self.slot_three_numbers:
-            k.resize(35)
-            k.move(self.slot_three_x, self.numbersy)
-
-
-    def update(self, screen, timer):
+    def update(self, screen, time):
         self.image.update(screen)
-        time = str(timer)
-        if len(time) == 3:
-            self.slot_one_x = 1325
-            self.slot_one_numbers[int(time[0])].move(self.slot_one_x, self.numbersy)
-            self.slot_one_numbers[int(time[0])].update(screen)
-            self.dot.move(self.slot_one_x + 28, self.numbersy + 15)
-            self.dot.update(screen)
-            self.slot_two_x = 1382
-            self.slot_two_numbers[int(time[2])].move(self.slot_two_x, self.numbersy)
-            self.slot_two_numbers[int(time[2])].update(screen)
-        elif len(time) == 4:
-            self.slot_one_x = 1320
-            self.slot_one_numbers[int(time[0])].move(self.slot_one_x, self.numbersy)
-            self.slot_one_numbers[int(time[0])].update(screen)
-            self.slot_two_x = 1355
-            self.slot_two_numbers[int(time[1])].move(self.slot_two_x, self.numbersy)
-            self.slot_two_numbers[int(time[1])].update(screen)
-            self.dot.move(self.slot_two_x + 28, self.numbersy + 15)
-            self.dot.update(screen)
-            self.slot_three_x = 1410
-            self.slot_three_numbers[int(time[3])].move(self.slot_three_x, self.numbersy)
-            self.slot_three_numbers[int(time[3])].update(screen)
+        time = str(time)
+        self.text.set_text(time)
+        self.text.render(screen)
 
 
 class Game:
-
     def __init__(self):
         self.background = util.Image("background20k.png", 800, 450)
         self.background.rect.left = 0
@@ -209,11 +149,11 @@ class Game:
         self.players.add(self.player1)
         self.players.add(self.player2)
         self.winner = None
-        self.startup_time = pygame.time.get_ticks()
+
         self.running_started = False
-        self.startup_time_passed = 0
-        self.running_start_time = 0
-        self.running_timer = 0
+        self.before_start_timer = TimingClock()
+        self.running_timer = None
+
         self.false_start_happened = False
         self.player1_text = util.Image("player_1_text.png", 400, 100)
         self.player1_text.resize(80)
@@ -226,18 +166,7 @@ class Game:
         self.winner_text.move(800, 350)
         self.end_start_timer = 0
         self.end_timer = 0
-        self.game_timer_object = Timer()
-
-    def get_start_timer(self):
-        timer = 3
-        self.startup_time_passed = pygame.time.get_ticks() - self.startup_time
-        self.startup_time_passed = math.floor(self.startup_time_passed / 1000)
-        timer -= self.startup_time_passed
-        return timer
-
-    def get_race_timer(self):
-        time_passed = pygame.time.get_ticks() - self.running_start_time
-        self.running_timer = round(time_passed / 1000, 1)
+        self.game_timer_widget = TimerWidget()
 
     def check_for_false_start(self):
         if not self.running_started:
@@ -326,33 +255,38 @@ class Game:
             elif player2.speed > player1.speed:
                 player2.rect.centerx += player2.speed - player1.speed
 
-    def timers(self, screen):
+    def run_timing_logic(self, screen):
         if self.running_started is False:
-            if self.get_start_timer() == 0:
+            if self.before_start_timer.get_current_time_in_seconds() == 3:
                 self.running_started = True
-                self.running_start_time = pygame.time.get_ticks()
-            elif self.get_start_timer() == 1 and self.false_start_happened is False:
+                self.running_timer = TimingClock()
+
+            elif self.before_start_timer.get_current_time_in_seconds() == 2 and self.false_start_happened is False:
                 self.count1.update(screen)
-            elif self.get_start_timer() == 2 and self.false_start_happened is False:
+
+            elif self.before_start_timer.get_current_time_in_seconds() == 1 and self.false_start_happened is False:
                 self.count2.update(screen)
-            elif self.get_start_timer() == 3 and self.false_start_happened is False:
+
+            elif self.before_start_timer.get_current_time_in_seconds() == 0 and self.false_start_happened is False:
                 self.count3.update(screen)
-        elif self.running_started is True and self.false_start_happened is False:
-            self.get_race_timer()
+
         elif self.running_started is True and self.false_start_happened is True:
             self.running_timer = "F.S."
 
+        else:
+            self.game_timer_widget.update(screen, str(self.running_timer.get_current_time_in_miliseconds()))
+
         if self.winner is self.player1 and self.player1.time is None:
-            self.player1.time = self.running_timer
+            self.player1.time = self.running_timer.get_current_time_in_seconds()
 
         elif self.winner is self.player2 and self.player2.time is None:
-            self.player2.time = self.running_timer
+            self.player2.time = self.running_timer.get_current_time_in_seconds()
 
         elif self.winner is self.player1 and self.player2.finished is True and self.player2.time is None:
-            self.player2.time = self.running_timer
+            self.player2.time = self.running_timer.get_current_time_in_seconds()
 
         elif self.winner is self.player2 and self.player1.finished is True and self.player1.time is None:
-            self.player1.time = self.running_timer
+            self.player1.time = self.running_timer.get_current_time_in_seconds()
 
     def end_timing(self):
         if self.winner is not None and self.end_start_timer is 0:
@@ -403,12 +337,10 @@ class Game:
         self.finish_line.update(screen)
         self.player1.update(screen, self.player2, self.finish_line)
         self.player2.update(screen, self.player1, self.finish_line)
-        if self.running_started and self.false_start_happened is False:
-            self.game_timer_object.update(screen, self.running_timer)
 
         self.false_start_logic()
         self.false_start_display(screen)
-        self.timers(screen)
+        self.run_timing_logic(screen)
         self.end_timing()
         if self.end_timer == 3:
             current_state.state = "leaderboard"
