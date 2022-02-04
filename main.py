@@ -4,10 +4,11 @@ import country
 import game_running
 import leaderboard
 import game_jumping
+import ctypes
 
 pygame.init()
-pygame.font.init() # you have to call this at the start,
-                   # if you want to use this module.
+pygame.font.init()
+ctypes.windll.user32.SetProcessDPIAware()
 
 clock = pygame.time.Clock()
 FPS = 60

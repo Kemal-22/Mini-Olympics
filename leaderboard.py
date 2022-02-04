@@ -3,7 +3,7 @@ import util
 
 
 WHITE = (255, 255, 255)
-
+MAIN_FONT = "./font/PublicPixel-0W6DP.ttf"
 
 def func():
     pass
@@ -143,7 +143,7 @@ class Leaderboard:
         self.winner = load_winner()
         self.highscore = load_highscore()
         print("highscore" + self.highscore)
-        self.highscore_text = Text("back-to-1982.regular.ttf", 50, self.highscore, WHITE, (100, 200))
+        self.highscore_text = Text(MAIN_FONT, 50, self.highscore, WHITE, (100, 200))
         self.previous_state = current_state.prev_state
         self.background = util.Image("backgroundMainMenu.png", 800, 450)
         self.background.rect.left = 0
@@ -151,7 +151,7 @@ class Leaderboard:
             self.base = util.Image("leaderboard_base1.png", 0, 0)
             self.player1_time = get_player_time(1)
             self.player2_time = get_player_time(2)
-            self.winner_text = Text("back-to-1982.regular.ttf", 50, self.player1_time, WHITE, (100, 300))
+            self.winner_text = Text(MAIN_FONT, 50, self.player1_time, WHITE, (100, 300))
             self.winning_time = self.player1_time
 
 
@@ -159,7 +159,7 @@ class Leaderboard:
             self.base = util.Image("leaderboard_base2.png", 0, 0)
             self.player1_time = get_player_time(2)
             self.player2_time = get_player_time(1)
-            self.winner_text = Text("back-to-1982.regular.ttf", 50, self.player2_time, WHITE, (100, 300))
+            self.winner_text = Text(MAIN_FONT, 50, self.player2_time, WHITE, (100, 300))
             self.winning_time = self.player2_time
 
         self.base.resize(70)
@@ -185,8 +185,8 @@ class Leaderboard:
 
 
 
-        self.player1_time_text = Text("back-to-1982.regular.ttf", self.font_size, self.player1_time, WHITE, (100, 200))
-        self.player2_time_text = Text("back-to-1982.regular.ttf", self.font_size, self.player2_time, WHITE, (100, 300))
+        self.player1_time_text = Text(MAIN_FONT, self.font_size, self.player1_time, WHITE, (100, 200))
+        self.player2_time_text = Text(MAIN_FONT, self.font_size, self.player2_time, WHITE, (100, 300))
         print("Player 1 Time: " + self.player1_time)
         print("Player 2 Time: " + self.player2_time)
 

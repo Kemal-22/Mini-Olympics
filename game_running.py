@@ -12,13 +12,12 @@ class Player(pygame.sprite.Sprite):
         defaultxpos = 800
         defaultypos = 750
         self.finished = False
-        self.slowdown = 0.14
-        self.acceleration = 1
+        self.slowdown = 0.14 # Default 0.14
+        self.acceleration = 10 # Default 1
         self.max_speed = 15
         self.started = False
         self.speed = 0
         self.country = util.load_country(id)
-        print(self.country)
         self.in_front = None
         self.time = None
 
@@ -49,7 +48,7 @@ class Player(pygame.sprite.Sprite):
 
     def update(self, screen, player2, line):
 
-        print("Speed is: " + str(round(self.speed, 2)) + " and slowdown is: " + str(round(self.slowdown, 2)))
+        #print("Speed is: " + str(round(self.speed, 2)) + " and slowdown is: " + str(round(self.slowdown, 2)))
         self.slowdown = self.get_slowdown()
 
         if self.rect.right > line.rect.left:
@@ -92,7 +91,7 @@ class TimingClock:
     def __init__(self):
         self.start = pygame.time.get_ticks()
 
-    def get_current_time_in_miliseconds(self):
+    def get_current_time_in_milliseconds(self):
         current_time = pygame.time.get_ticks()
         return current_time - self.start
 
@@ -108,15 +107,17 @@ class TimerWidget:
         self.image = util.Image("time_image.png", self.image_pos_x, self.image_pos_y)
         self.image.resize(30)
         self.image.move(self.image_pos_x, self.image_pos_y)
+
         self.text_y_position = self.image_pos_y + self.image.get_image_height() / 4
         self.text_x_position = self.image_pos_x
         self.text = util.Text("0.00", (self.text_x_position, self.text_y_position), MAIN_FONT, font_size=35,
                               color=(255, 255, 255))
+        self.time = 0
 
-    def update(self, screen, time):
+    def update(self, screen, time=None):
         self.image.update(screen)
-        time = str(time)
-        self.text.set_text(time)
+        if time is not None:
+            self.text.set_text(str(time))
         self.text.render(screen)
 
 
@@ -153,6 +154,8 @@ class Game:
         self.running_started = False
         self.before_start_timer = TimingClock()
         self.running_timer = None
+        self.finish_time = None
+        self.end_timer = None
 
         self.false_start_happened = False
         self.player1_text = util.Image("player_1_text.png", 400, 100)
@@ -164,8 +167,6 @@ class Game:
         self.winner_text = util.Image("winner.png", 800, 350)
         self.winner_text.resize(30)
         self.winner_text.move(800, 350)
-        self.end_start_timer = 0
-        self.end_timer = 0
         self.game_timer_widget = TimerWidget()
 
     def check_for_false_start(self):
@@ -255,44 +256,73 @@ class Game:
             elif player2.speed > player1.speed:
                 player2.rect.centerx += player2.speed - player1.speed
 
-    def run_timing_logic(self, screen):
-        if self.running_started is False:
-            if self.before_start_timer.get_current_time_in_seconds() == 3:
-                self.running_started = True
-                self.running_timer = TimingClock()
+    def countdown_timer(self, screen):
+        if self.running_started or self.false_start_happened:
+            return False
 
-            elif self.before_start_timer.get_current_time_in_seconds() == 2 and self.false_start_happened is False:
-                self.count1.update(screen)
+        if self.before_start_timer.get_current_time_in_seconds() == 3:
+            self.running_started = True
+            self.running_timer = TimingClock()
 
-            elif self.before_start_timer.get_current_time_in_seconds() == 1 and self.false_start_happened is False:
-                self.count2.update(screen)
+        elif self.before_start_timer.get_current_time_in_seconds() == 2:
+            self.count1.update(screen)
 
-            elif self.before_start_timer.get_current_time_in_seconds() == 0 and self.false_start_happened is False:
-                self.count3.update(screen)
+        elif self.before_start_timer.get_current_time_in_seconds() == 1:
+            self.count2.update(screen)
 
-        elif self.running_started is True and self.false_start_happened is True:
-            self.running_timer = "F.S."
+        elif self.before_start_timer.get_current_time_in_seconds() == 0:
+            self.count3.update(screen)
 
+    def run_end_timer(self, current_state):
+        if self.end_timer is None:
+            if self.winner is not None:
+                self.end_timer = TimingClock()
+            return True
+
+        if self.end_timer.get_current_time_in_seconds() >= 3:
+            current_state.state = "leaderboard"
+            current_state.prev_state = "running"
+            return True
+
+    def main_timer(self, screen):
+        if not self.running_started:
+            return False
+
+        if self.winner is None:
+            time = str(round(self.running_timer.get_current_time_in_milliseconds() / 1000, 1))
+            self.game_timer_widget.update(screen, time)
         else:
-            self.game_timer_widget.update(screen, str(self.running_timer.get_current_time_in_miliseconds()))
+            self.game_timer_widget.update(screen)
 
-        if self.winner is self.player1 and self.player1.time is None:
-            self.player1.time = self.running_timer.get_current_time_in_seconds()
+    def run_timing_logic(self, screen, current_state):
 
-        elif self.winner is self.player2 and self.player2.time is None:
-            self.player2.time = self.running_timer.get_current_time_in_seconds()
+        self.main_timer(screen)
 
-        elif self.winner is self.player1 and self.player2.finished is True and self.player2.time is None:
-            self.player2.time = self.running_timer.get_current_time_in_seconds()
+        if self.false_start_happened is False and self.running_started:
+            current_time = round(self.running_timer.get_current_time_in_milliseconds() / 1000, 1)
 
-        elif self.winner is self.player2 and self.player1.finished is True and self.player1.time is None:
-            self.player1.time = self.running_timer.get_current_time_in_seconds()
+            if self.winner is self.player1 and self.player1.time is None:
+                print("1")
+                self.player1.time = current_time
 
-    def end_timing(self):
-        if self.winner is not None and self.end_start_timer is 0:
-            self.end_start_timer = pygame.time.get_ticks()
-        elif self.winner is not None and self.end_start_timer is not 0:
-            self.end_timer = math.floor((pygame.time.get_ticks() - self.end_start_timer) / 1000)
+            elif self.winner is self.player2 and self.player2.time is None:
+                print("2")
+                self.player1.time = current_time
+
+            elif self.winner is self.player1 and self.player2.finished is True and self.player2.time is None:
+                print("3")
+                self.player1.time = current_time
+
+            elif self.winner is self.player2 and self.player1.finished is True and self.player1.time is None:
+                print("4")
+                self.player1.time = current_time
+
+        elif not self.running_started and self.false_start_happened:
+            self.running_timer = "F.S."
+            self.player1.time = "F.S."
+            self.player2.time = "F.S."
+
+        self.run_end_timer(current_state)
 
     def record_data(self):
         f = open("winner_and_time.txt", "w")
@@ -338,13 +368,10 @@ class Game:
         self.player1.update(screen, self.player2, self.finish_line)
         self.player2.update(screen, self.player1, self.finish_line)
 
+        self.countdown_timer(screen)
         self.false_start_logic()
         self.false_start_display(screen)
-        self.run_timing_logic(screen)
-        self.end_timing()
-        if self.end_timer == 3:
-            current_state.state = "leaderboard"
-            current_state.prev_state = "running"
+        self.run_timing_logic(screen, current_state)
 
         self.display_winner(screen)
 
