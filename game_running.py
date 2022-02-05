@@ -10,77 +10,89 @@ class Player(pygame.sprite.Sprite):
     def __init__(self, id):
         pygame.sprite.Sprite.__init__(self)
         defaultxpos = 800
-        defaultypos = 750
+        defaultypos = 675
         self.finished = False
-        self.slowdown = 0.14 # Default 0.14
-        self.acceleration = 10 # Default 1
+        self.current_slowdown = 0.14  # Default 0.14
+        self.acceleration = 10  # Default 1
         self.max_speed = 15
         self.started = False
         self.speed = 0
         self.country = util.load_country(id)
-        self.in_front = None
+        self.is_in_front = None
         self.time = None
 
-        self.sprites = []
-        self.sprites.append(pygame.image.load("./characters/" + self.country + "/0.png"))
-        self.sprites.append(pygame.image.load("./characters/" + self.country + "/1.png"))
-        self.sprites.append(pygame.image.load("./characters/" + self.country + "/2.png"))
-        self.sprites.append(pygame.image.load("./characters/" + self.country + "/3.png"))
-        self.sprites.append(pygame.image.load("./characters/" + self.country + "/4.png"))
-        self.current_sprite = 0
-        self.scale = 0.5
+        self.animation_states = []
+        self.current_animation_state = 0
+        self.sprite_size_scale = 0.5   # Scales the players size on screen
+        # Load all animation states and scale them according to sprite scale
+        for animation_state in range(0, 5):
+            temp_sprite = pygame.image.load("./characters/" + self.country + "/" + str(animation_state) + ".png")
+            temp_sprite_width = temp_sprite.get_width()
+            temp_sprite_height = temp_sprite.get_height()
+            temp_sprite = pygame.transform.scale(temp_sprite, (round(temp_sprite_width * self.sprite_size_scale),
+                                                               round(temp_sprite_height * self.sprite_size_scale)))
+            self.animation_states.append(temp_sprite)
 
-        for i in range(0, len(self.sprites)):
-            width = self.sprites[i].get_width()
-            height = self.sprites[i].get_height()
-            self.sprites[i] = pygame.transform.scale(self.sprites[i], (round(width * self.scale), round(height * self.scale)))
+        self.current_sprite = self.animation_states[0]
+        self.current_sprite_rect = self.current_sprite.get_rect()
+        self.current_sprite_rect.center = [defaultxpos, defaultypos]
 
-        self.image = self.sprites[self.current_sprite]
-        self.rect = self.image.get_rect()
-        self.rect.center = [defaultxpos, 675]
-
-        self.since_last_change = 1
-        self.last_change = 0
+        self.animation_timer = TimingClock()
+        self.time_since_last_animation_change = 0
+        self.last_animation_change = 0
 
     def get_slowdown(self):
         slowdown = ((self.speed / 0.95) / 100)
         return slowdown
 
-    def update(self, screen, player2, line):
-
-        #print("Speed is: " + str(round(self.speed, 2)) + " and slowdown is: " + str(round(self.slowdown, 2)))
-        self.slowdown = self.get_slowdown()
-
-        if self.rect.right > line.rect.left:
+    def check_if_finished(self, line):
+        if self.current_sprite_rect.right > line.rect.left:
             self.finished = True
 
+    def slow_player_down(self):
+        self.current_slowdown = self.get_slowdown()
+        print(self.speed)
         if self.finished is True:
-            if self.speed > 0:
-                self.speed -= self.slowdown * 3
+            if self.speed >= 1:  # This is set to 1 because values less than this do not move the player, and the
+                # slowdown will never reach 0
+                self.speed -= self.current_slowdown * 3
             else:
                 self.speed = 0
 
-        elif self.speed - self.slowdown < 0:
+        elif self.speed - self.current_slowdown < 1:
             self.speed = 0
+
         else:
-            self.speed -= self.slowdown
+            self.speed -= self.current_slowdown
 
-        self.since_last_change = (pygame.time.get_ticks() - self.last_change) / 1000
-        if self.speed == 0:
-            self.current_sprite = 0
+    def change_animation_state(self):
+        self.time_since_last_animation_change = (self.animation_timer.get_current_time_in_milliseconds()
+                                                 - self.last_animation_change) / 1000
+        animation_change_interval = (-0.01 * self.speed + 0.25)
 
-        elif self.since_last_change > (-0.01 * self.speed + 0.25):
-            if self.current_sprite + 1 < len(self.sprites):
-                self.current_sprite += 1
-                self.last_change = pygame.time.get_ticks()
+        if self.speed <= 1:
+            self.current_animation_state = 0
+
+        elif self.time_since_last_animation_change > animation_change_interval:
+
+            if self.current_animation_state + 1 < len(self.animation_states):
+                self.current_animation_state += 1
             else:
-                self.current_sprite = 1
-                self.last_change = pygame.time.get_ticks()
+                self.current_animation_state = 1
 
-        self.image = self.sprites[self.current_sprite]
-        screen.blit(self.image, self.rect)
+            self.last_animation_change = self.animation_timer.get_current_time_in_milliseconds()
 
-    def run_clicked(self):
+    def update_player(self, screen, line):
+
+        #print("Speed is: " + str(round(self.speed, 2)) + " and slowdown is: " + str(round(self.slowdown, 2)))
+        self.check_if_finished(line)
+        self.slow_player_down()
+        self.change_animation_state()
+
+        self.current_sprite = self.animation_states[self.current_animation_state]
+        screen.blit(self.current_sprite, self.current_sprite_rect)
+
+    def on_run_keybind(self):
         if self.speed + self.acceleration <= self.max_speed:
             self.speed += self.acceleration
         else:
@@ -214,9 +226,9 @@ class Game:
         return distance
 
     def move_background(self, background, player1, player2):
-        if player1.rect.centerx == 800:
+        if player1.current_sprite_rect.centerx == 800:
             background.rect.x -= player1.speed
-        elif player2.rect.centerx == 800:
+        elif player2.current_sprite_rect.centerx == 800:
             background.rect.x -= player2.speed
 
         if background.rect.right < 0:
@@ -235,26 +247,26 @@ class Game:
         return False
 
     def player_movement(self, player1, player2):
-        if player1.rect.centerx > 800:
-            player1.rect.centerx = 800
-        if player2.rect.centerx > 800:
-            player2.rect.centerx = 800
+        if player1.current_sprite_rect.centerx > 800:
+            player1.current_sprite_rect.centerx = 800
+        if player2.current_sprite_rect.centerx > 800:
+            player2.current_sprite_rect.centerx = 800
 
-        if player1.rect.centerx == 800 and player2.rect.centerx == 800:
+        if player1.current_sprite_rect.centerx == 800 and player2.current_sprite_rect.centerx == 800:
             if player1.speed < player2.speed:
-                player1.rect.centerx -= player2.speed - player1.speed
+                player1.current_sprite_rect.centerx -= player2.speed - player1.speed
             elif player1.speed > player2.speed:
-                player2.rect.centerx -= player1.speed - player2.speed
-        elif player1.rect.centerx < 800 and player2.rect.centerx == 800:
+                player2.current_sprite_rect.centerx -= player1.speed - player2.speed
+        elif player1.current_sprite_rect.centerx < 800 and player2.current_sprite_rect.centerx == 800:
             if player1.speed < player2.speed:
-                player1.rect.centerx -= player2.speed - player1.speed
+                player1.current_sprite_rect.centerx -= player2.speed - player1.speed
             elif player1.speed > player2.speed:
-                player1.rect.centerx += player1.speed - player2.speed
-        elif player2.rect.centerx < 800 and player1.rect.centerx == 800:
+                player1.current_sprite_rect.centerx += player1.speed - player2.speed
+        elif player2.current_sprite_rect.centerx < 800 and player1.current_sprite_rect.centerx == 800:
             if player2.speed < player1.speed:
-                player2.rect.centerx -= player1.speed - player2.speed
+                player2.current_sprite_rect.centerx -= player1.speed - player2.speed
             elif player2.speed > player1.speed:
-                player2.rect.centerx += player2.speed - player1.speed
+                player2.current_sprite_rect.centerx += player2.speed - player1.speed
 
     def running_start_countdown_timer(self, screen):
         if self.running_started or self.false_start_happened:
@@ -353,7 +365,7 @@ class Game:
                         self.player1.speed = self.player1.max_speed - self.player1.max_speed * 0.3
                     else:
                         if self.player1.finished is False:
-                            self.player1.run_clicked()
+                            self.player1.on_run_keybind()
 
                 if event.key == pygame.K_i:
                     if not self.player2.started:
@@ -361,15 +373,15 @@ class Game:
                         self.player2.speed = self.player2.max_speed - self.player2.max_speed * 0.3
                     else:
                         if self.player2.finished is False:
-                            self.player2.run_clicked()
+                            self.player2.on_run_keybind()
 
         self.move_background(self.background, self.player1, self.player2)
         self.move_finish_line(self.finish_line)
         self.player_movement(self.player1, self.player2)
         self.background.update(screen)
         self.finish_line.update(screen)
-        self.player1.update(screen, self.player2, self.finish_line)
-        self.player2.update(screen, self.player1, self.finish_line)
+        self.player1.update_player(screen, self.finish_line)
+        self.player2.update_player(screen, self.finish_line)
 
         self.false_start_logic()
         self.false_start_display(screen)
