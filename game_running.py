@@ -256,7 +256,7 @@ class Game:
             elif player2.speed > player1.speed:
                 player2.rect.centerx += player2.speed - player1.speed
 
-    def countdown_timer(self, screen):
+    def running_start_countdown_timer(self, screen):
         if self.running_started or self.false_start_happened:
             return False
 
@@ -273,7 +273,7 @@ class Game:
         elif self.before_start_timer.get_current_time_in_seconds() == 0:
             self.count3.update(screen)
 
-    def run_end_timer(self, current_state):
+    def before_leaderboard_timer(self, current_state):
         if self.end_timer is None:
             if self.winner is not None:
                 self.end_timer = TimingClock()
@@ -284,7 +284,7 @@ class Game:
             current_state.prev_state = "running"
             return True
 
-    def main_timer(self, screen):
+    def main_running_timer(self, screen):
         if not self.running_started:
             return False
 
@@ -294,11 +294,8 @@ class Game:
         else:
             self.game_timer_widget.update(screen)
 
-    def run_timing_logic(self, screen, current_state):
-
-        self.main_timer(screen)
-
-        if self.false_start_happened is False and self.running_started:
+    def record_winner_timings(self):
+        if self.running_started:
             current_time = round(self.running_timer.get_current_time_in_milliseconds() / 1000, 1)
 
             if self.winner is self.player1 and self.player1.time is None:
@@ -307,22 +304,28 @@ class Game:
 
             elif self.winner is self.player2 and self.player2.time is None:
                 print("2")
-                self.player1.time = current_time
+                self.player2.time = current_time
 
             elif self.winner is self.player1 and self.player2.finished is True and self.player2.time is None:
                 print("3")
-                self.player1.time = current_time
+                self.player2.time = current_time
 
             elif self.winner is self.player2 and self.player1.finished is True and self.player1.time is None:
                 print("4")
                 self.player1.time = current_time
 
-        elif not self.running_started and self.false_start_happened:
+    def false_start_timing(self):
+        if self.false_start_happened:
             self.running_timer = "F.S."
             self.player1.time = "F.S."
             self.player2.time = "F.S."
 
-        self.run_end_timer(current_state)
+    def run_timing_logic(self, screen, current_state):
+        self.running_start_countdown_timer(screen)
+        self.main_running_timer(screen)
+        self.record_winner_timings()
+        self.false_start_timing()
+        self.before_leaderboard_timer(current_state)
 
     def record_data(self):
         f = open("winner_and_time.txt", "w")
@@ -368,9 +371,9 @@ class Game:
         self.player1.update(screen, self.player2, self.finish_line)
         self.player2.update(screen, self.player1, self.finish_line)
 
-        self.countdown_timer(screen)
         self.false_start_logic()
         self.false_start_display(screen)
+
         self.run_timing_logic(screen, current_state)
 
         self.display_winner(screen)
