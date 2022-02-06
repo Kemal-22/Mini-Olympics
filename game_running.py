@@ -13,13 +13,14 @@ class Player(pygame.sprite.Sprite):
         defaultypos = 675
         self.finished = False
         self.current_slowdown = 0.14  # Default 0.14
-        self.acceleration = 10  # Default 1
-        self.max_speed = 15
+        self.acceleration = 2  # Default 1
+        self.max_speed = 20
         self.started = False
         self.speed = 0
         self.country = util.load_country(player_number)
         self.is_in_front = None
         self.time = None
+        self.playernum = player_number
 
         self.animation_states = []
         self.current_animation_state = 0
@@ -42,7 +43,8 @@ class Player(pygame.sprite.Sprite):
         self.last_animation_change = 0
 
     def get_slowdown(self):
-        slowdown = ((self.speed / 0.95) / 100)
+        #slowdown = ((self.speed / 0.95) / 100)
+        slowdown = 0.02 * pow(1.2, self.speed)
         return slowdown
 
     def check_if_finished(self, line):
@@ -51,7 +53,9 @@ class Player(pygame.sprite.Sprite):
 
     def slow_player_down(self):
         self.current_slowdown = self.get_slowdown()
-
+        if self.playernum == 1:
+            print("Current speed is: " + str(self.speed))
+            print("Current slowdown is: " + str(self.current_slowdown))
         if self.finished is True:
             if self.speed >= 1:  # This is set to 1 because values less than this do not move the player, and the
                 # slowdown will never reach 0
@@ -258,7 +262,6 @@ class Game:
             self.player1.current_sprite_rect.centerx = 800
         if self.player2.current_sprite_rect.centerx > 800:
             self.player2.current_sprite_rect.centerx = 800
-
         # This part of the code keeps the player in front in the center of the screen while moving the second player
         # forwards or backwards. Also keeps track of who is in front.
 
@@ -268,7 +271,7 @@ class Game:
                 self.player1.current_sprite_rect.centerx -= self.player2.speed - self.player1.speed
                 self.player2.is_in_front = True
                 self.player1.is_in_front = False
-            elif self.player1.speed >= self.player2.speed:
+            elif self.player1.speed > self.player2.speed:
                 self.player2.current_sprite_rect.centerx -= self.player1.speed - self.player2.speed
                 self.player2.is_in_front = False
                 self.player1.is_in_front = True
@@ -278,15 +281,15 @@ class Game:
             self.player2.is_in_front = True
             if self.player1.speed < self.player2.speed:
                 self.player1.current_sprite_rect.centerx -= self.player2.speed - self.player1.speed
-            elif self.player1.speed >= self.player2.speed:
+            elif self.player1.speed > self.player2.speed:
                 self.player1.current_sprite_rect.centerx += self.player1.speed - self.player2.speed
 
         elif self.player2.current_sprite_rect.centerx < 800 and self.player1.current_sprite_rect.centerx == 800:
-            self.player1.is_in_front = False
-            self.player2.is_in_front = True
+            self.player1.is_in_front = True
+            self.player2.is_in_front = False
             if self.player2.speed < self.player1.speed:
                 self.player2.current_sprite_rect.centerx -= self.player1.speed - self.player2.speed
-            elif self.player2.speed >= self.player1.speed:
+            elif self.player2.speed > self.player1.speed:
                 self.player2.current_sprite_rect.centerx += self.player2.speed - self.player1.speed
 
     def running_start_countdown_timer(self, screen):

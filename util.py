@@ -14,7 +14,8 @@ class Button:
             if self.rect.collidepoint(x, y):
                 if new_state is not False:
                     current_state.state = new_state
-                self.callback()
+                if self.callback is not None:
+                    self.callback()
                 return True
 
     def check_click_no_state_change(self):

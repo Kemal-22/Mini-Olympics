@@ -55,18 +55,13 @@ class Flag:
         self.currentimageobject = self.images[0]
         self.id = id
 
-        self.button_left = util.Button("button_triangle_left.png", self.pos_x - 50, self.pos_y, self.test_function())
+        self.button_left = util.Button("button_triangle_left.png", self.pos_x - 50, self.pos_y, None)
         self.button_left.resize(30)
         self.button_left.move(self.pos_x - 265, self.pos_y)
 
-        self.button_right = util.Button("button_triangle_right.png", self.pos_x - 50, self.pos_y, self.test_function())
+        self.button_right = util.Button("button_triangle_right.png", self.pos_x - 50, self.pos_y, None)
         self.button_right.resize(30)
         self.button_right.move(self.pos_x + 265, self.pos_y)
-
-
-    def test_function(self):
-        print("working")
-
 
     def change_current_image(self, dir, other_player):
         if dir == "up" and self.currentimage + 1 < len(self.name_list):
