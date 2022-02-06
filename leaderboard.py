@@ -5,10 +5,6 @@ import util
 WHITE = (255, 255, 255)
 MAIN_FONT = "./font/PublicPixel-0W6DP.ttf"
 
-def func():
-    pass
-
-
 def load_highscore():
     f = open("highscore.txt", "r")
     highscore = f.read()
@@ -66,6 +62,7 @@ def get_text_pos(text_surface, base, place):
         position = (position_x, position_y)
         return position
 
+
 def winner_and_hs_text_pos(base, text_surface, id):
     text_width = text_surface.get_width()
     text_height = text_surface.get_height()
@@ -88,6 +85,7 @@ def winner_and_hs_text_pos(base, text_surface, id):
         positiony = slot_centery - (text_height / 2)
         position = (positionx, positiony)
         return position
+
 
 class PlayerFlag:
     def __init__(self, player, place, base_image):
@@ -142,7 +140,7 @@ class Leaderboard:
         self.next_state = "main_menu"
         self.winner = load_winner()
         self.highscore = load_highscore()
-        print("highscore" + self.highscore)
+
         self.highscore_text = Text(MAIN_FONT, 50, self.highscore, WHITE, (100, 200))
         self.previous_state = current_state.prev_state
         self.background = util.Image("backgroundMainMenu.png", 800, 450)
@@ -153,7 +151,6 @@ class Leaderboard:
             self.player2_time = get_player_time(2)
             self.winner_text = Text(MAIN_FONT, 50, self.player1_time, WHITE, (100, 300))
             self.winning_time = self.player1_time
-
 
         else:
             self.base = util.Image("leaderboard_base2.png", 0, 0)
@@ -183,8 +180,6 @@ class Leaderboard:
 
         self.font_size = 65
 
-
-
         self.player1_time_text = Text(MAIN_FONT, self.font_size, self.player1_time, WHITE, (100, 200))
         self.player2_time_text = Text(MAIN_FONT, self.font_size, self.player2_time, WHITE, (100, 300))
         print("Player 1 Time: " + self.player1_time)
@@ -205,10 +200,10 @@ class Leaderboard:
 
         self.restart_button_pos = (1000, 825)
         self.next_button_pos = (self.restart_button_pos[0] + 400, self.restart_button_pos[1])
-        self.next_button = util.Button("next_button.png", 100, 100, func())
+        self.next_button = util.Button("next_button.png", 100, 100, None)
         self.next_button.resize(50)
         self.next_button.move(self.next_button_pos[0], self.next_button_pos[1])
-        self.restart_button = util.Button("restart_button.png", 100, 100, func())
+        self.restart_button = util.Button("restart_button.png", 100, 100, None)
         self.restart_button.resize(50)
         self.restart_button.move(self.restart_button_pos[0], self.restart_button_pos[1])
 

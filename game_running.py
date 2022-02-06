@@ -10,7 +10,7 @@ class Player(pygame.sprite.Sprite):
     def __init__(self, player_number):
         pygame.sprite.Sprite.__init__(self)
         defaultxpos = 800
-        defaultypos = 675
+        defaultypos = 659
         self.finished = False
         self.current_slowdown = 0.14  # Default 0.14
         self.acceleration = 2  # Default 1
@@ -24,9 +24,9 @@ class Player(pygame.sprite.Sprite):
 
         self.animation_states = []
         self.current_animation_state = 0
-        self.sprite_size_scale = 0.5   # Scales the players size on screen
+        self.sprite_size_scale = 0.6   # Scales the players size on screen
         # Load all animation states and scale them according to sprite scale
-        for animation_state in range(0, 5):
+        for animation_state in range(0, 7):
             temp_sprite = pygame.image.load("./characters/" + self.country + "/" + str(animation_state) + ".png")
             temp_sprite_width = temp_sprite.get_width()
             temp_sprite_height = temp_sprite.get_height()
@@ -53,9 +53,7 @@ class Player(pygame.sprite.Sprite):
 
     def slow_player_down(self):
         self.current_slowdown = self.get_slowdown()
-        if self.playernum == 1:
-            print("Current speed is: " + str(self.speed))
-            print("Current slowdown is: " + str(self.current_slowdown))
+
         if self.finished is True:
             if self.speed >= 1:  # This is set to 1 because values less than this do not move the player, and the
                 # slowdown will never reach 0
@@ -72,7 +70,7 @@ class Player(pygame.sprite.Sprite):
     def change_animation_state(self):
         self.time_since_last_animation_change = (self.animation_timer.get_current_time_in_milliseconds()
                                                  - self.last_animation_change) / 1000
-        animation_change_interval = (-0.01 * self.speed + 0.25)
+        animation_change_interval = (-0.01 * self.speed + 0.20)
 
         if self.speed <= 1:
             self.current_animation_state = 0
@@ -87,8 +85,6 @@ class Player(pygame.sprite.Sprite):
             self.last_animation_change = self.animation_timer.get_current_time_in_milliseconds()
 
     def update_player(self, screen, line):
-
-        #print("Speed is: " + str(round(self.speed, 2)) + " and slowdown is: " + str(round(self.slowdown, 2)))
         self.check_if_finished(line)
         self.slow_player_down()
         self.change_animation_state()
