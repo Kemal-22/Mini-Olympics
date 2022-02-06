@@ -7,7 +7,7 @@ MAIN_FONT = "./font/PublicPixel-0W6DP.ttf"
 
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, id):
+    def __init__(self, player_number):
         pygame.sprite.Sprite.__init__(self)
         defaultxpos = 800
         defaultypos = 675
@@ -17,7 +17,7 @@ class Player(pygame.sprite.Sprite):
         self.max_speed = 15
         self.started = False
         self.speed = 0
-        self.country = util.load_country(id)
+        self.country = util.load_country(player_number)
         self.is_in_front = None
         self.time = None
 
@@ -51,7 +51,7 @@ class Player(pygame.sprite.Sprite):
 
     def slow_player_down(self):
         self.current_slowdown = self.get_slowdown()
-        print(self.speed)
+
         if self.finished is True:
             if self.speed >= 1:  # This is set to 1 because values less than this do not move the player, and the
                 # slowdown will never reach 0
@@ -142,18 +142,12 @@ class Game:
         self.finish_line.rect.left = 10 * self.pixels_per_meter + 800
         self.finish_line.rect.bottom = 900
         self.finish_line_spawned = False
-        self.count3 = util.Image("count_3.png", 0, 0)
-        self.count3.resize(50)
-        self.count3.move(800, 450)
-        self.count2 = util.Image("count_2.png", 0, 0)
-        self.count2.resize(50)
-        self.count2.move(800, 450)
-        self.count1 = util.Image("count_1.png", 0, 0)
-        self.count1.resize(50)
-        self.count1.move(800, 450)
-        self.false_start = util.Image("false_start.png", 800, 450)
-        self.false_start.resize(25)
-        self.false_start.move(800, 450)
+
+        self.start_countdown_number_3 = util.Image("count_3.png", 0, 0)
+        self.start_countdown_number_2 = util.Image("count_2.png", 0, 0)
+        self.start_countdown_number_1 = util.Image("count_1.png", 0, 0)
+        self.false_start_image = util.Image("false_start.png", 800, 450)
+
         self.player1 = Player(1)
         self.player2 = Player(2)
         self.player1.speed = 0
@@ -168,18 +162,31 @@ class Game:
         self.running_timer = None
         self.finish_time = None
         self.end_timer = None
-
+        self.game_timer_widget = TimerWidget()
         self.false_start_happened = False
+
         self.player1_text = util.Image("player_1_text.png", 400, 100)
+        self.player2_text = util.Image("player_2_text.png", 1200, 100)
+        self.winner_text = util.Image("winner.png", 800, 350)
+
+        self.resize_and_place_images()
+
+    def resize_and_place_images(self):
+        self.start_countdown_number_3.resize(50)
+        self.start_countdown_number_3.move(800, 450)
+        self.start_countdown_number_2.resize(50)
+        self.start_countdown_number_2.move(800, 450)
+        self.start_countdown_number_1.resize(50)
+        self.start_countdown_number_1.move(800, 450)
+        self.false_start_image.resize(25)
+        self.false_start_image.move(800, 450)
+
         self.player1_text.resize(80)
         self.player1_text.move(800, 325)
-        self.player2_text = util.Image("player_2_text.png", 1200, 100)
         self.player2_text.resize(80)
         self.player2_text.move(800, 325)
-        self.winner_text = util.Image("winner.png", 800, 350)
         self.winner_text.resize(30)
         self.winner_text.move(800, 350)
-        self.game_timer_widget = TimerWidget()
 
     def check_for_false_start(self):
         if not self.running_started:
@@ -204,35 +211,35 @@ class Game:
 
     def false_start_display(self, screen):
         if self.false_start_happened:
-            self.false_start.update(screen)
+            self.false_start_image.update(screen)
             if self.winner == self.player1:
                 self.player2_text.update(screen)
             elif self.winner == self.player2:
                 self.player1_text.update(screen)
 
     def display_winner(self, screen):
-        if self.winner is not None and self.false_start_happened is not True:
-            self.player1_text.move(800, 475)
-            self.player2_text.move(800, 475)
-            if self.winner == self.player1:
-                self.winner_text.update(screen)
-                self.player1_text.update(screen)
-            else:
-                self.winner_text.update(screen)
-                self.player2_text.update(screen)
+        if self.winner is None or self.false_start_happened:
+            return False
 
-    def measure_distance(self, background):
+        if self.winner == self.player1:
+            self.player1_text.move(800, 475)
+            self.winner_text.update(screen)
+            self.player1_text.update(screen)
+        else:
+            self.player2_text.move(800, 475)
+            self.winner_text.update(screen)
+            self.player2_text.update(screen)
+
+    @staticmethod
+    def measure_distance(background):
         distance = abs(background.rect.left) / 90
         return distance
 
-    def move_background(self, background, player1, player2):
-        if player1.current_sprite_rect.centerx == 800:
-            background.rect.x -= player1.speed
-        elif player2.current_sprite_rect.centerx == 800:
-            background.rect.x -= player2.speed
-
-        if background.rect.right < 0:
-            background.rect.left = 1595
+    def move_background(self):
+        if self.player1.is_in_front:
+            self.background.rect.x -= self.player1.speed
+        elif self.player2.is_in_front:
+            self.background.rect.x -= self.player2.speed
 
     def move_finish_line(self, finish_line):
         finish_line.rect.left = ((100 - self.measure_distance(self.background)) * 90) + 800
@@ -246,27 +253,41 @@ class Game:
 
         return False
 
-    def player_movement(self, player1, player2):
-        if player1.current_sprite_rect.centerx > 800:
-            player1.current_sprite_rect.centerx = 800
-        if player2.current_sprite_rect.centerx > 800:
-            player2.current_sprite_rect.centerx = 800
+    def player_movement(self):
+        if self.player1.current_sprite_rect.centerx > 800:
+            self.player1.current_sprite_rect.centerx = 800
+        if self.player2.current_sprite_rect.centerx > 800:
+            self.player2.current_sprite_rect.centerx = 800
 
-        if player1.current_sprite_rect.centerx == 800 and player2.current_sprite_rect.centerx == 800:
-            if player1.speed < player2.speed:
-                player1.current_sprite_rect.centerx -= player2.speed - player1.speed
-            elif player1.speed > player2.speed:
-                player2.current_sprite_rect.centerx -= player1.speed - player2.speed
-        elif player1.current_sprite_rect.centerx < 800 and player2.current_sprite_rect.centerx == 800:
-            if player1.speed < player2.speed:
-                player1.current_sprite_rect.centerx -= player2.speed - player1.speed
-            elif player1.speed > player2.speed:
-                player1.current_sprite_rect.centerx += player1.speed - player2.speed
-        elif player2.current_sprite_rect.centerx < 800 and player1.current_sprite_rect.centerx == 800:
-            if player2.speed < player1.speed:
-                player2.current_sprite_rect.centerx -= player1.speed - player2.speed
-            elif player2.speed > player1.speed:
-                player2.current_sprite_rect.centerx += player2.speed - player1.speed
+        # This part of the code keeps the player in front in the center of the screen while moving the second player
+        # forwards or backwards. Also keeps track of who is in front.
+
+        if self.player1.current_sprite_rect.centerx == 800 and self.player2.current_sprite_rect.centerx == 800:
+
+            if self.player1.speed < self.player2.speed:
+                self.player1.current_sprite_rect.centerx -= self.player2.speed - self.player1.speed
+                self.player2.is_in_front = True
+                self.player1.is_in_front = False
+            elif self.player1.speed >= self.player2.speed:
+                self.player2.current_sprite_rect.centerx -= self.player1.speed - self.player2.speed
+                self.player2.is_in_front = False
+                self.player1.is_in_front = True
+
+        elif self.player1.current_sprite_rect.centerx < 800 and self.player2.current_sprite_rect.centerx == 800:
+            self.player1.is_in_front = False
+            self.player2.is_in_front = True
+            if self.player1.speed < self.player2.speed:
+                self.player1.current_sprite_rect.centerx -= self.player2.speed - self.player1.speed
+            elif self.player1.speed >= self.player2.speed:
+                self.player1.current_sprite_rect.centerx += self.player1.speed - self.player2.speed
+
+        elif self.player2.current_sprite_rect.centerx < 800 and self.player1.current_sprite_rect.centerx == 800:
+            self.player1.is_in_front = False
+            self.player2.is_in_front = True
+            if self.player2.speed < self.player1.speed:
+                self.player2.current_sprite_rect.centerx -= self.player1.speed - self.player2.speed
+            elif self.player2.speed >= self.player1.speed:
+                self.player2.current_sprite_rect.centerx += self.player2.speed - self.player1.speed
 
     def running_start_countdown_timer(self, screen):
         if self.running_started or self.false_start_happened:
@@ -277,13 +298,13 @@ class Game:
             self.running_timer = TimingClock()
 
         elif self.before_start_timer.get_current_time_in_seconds() == 2:
-            self.count1.update(screen)
+            self.start_countdown_number_1.update(screen)
 
         elif self.before_start_timer.get_current_time_in_seconds() == 1:
-            self.count2.update(screen)
+            self.start_countdown_number_2.update(screen)
 
         elif self.before_start_timer.get_current_time_in_seconds() == 0:
-            self.count3.update(screen)
+            self.start_countdown_number_3.update(screen)
 
     def before_leaderboard_timer(self, current_state):
         if self.end_timer is None:
@@ -306,25 +327,17 @@ class Game:
         else:
             self.game_timer_widget.update(screen)
 
-    def record_winner_timings(self):
-        if self.running_started:
-            current_time = round(self.running_timer.get_current_time_in_milliseconds() / 1000, 1)
+    def record_timings(self):
+        if not self.running_started:
+            return False
 
-            if self.winner is self.player1 and self.player1.time is None:
-                print("1")
-                self.player1.time = current_time
+        current_time = round(self.running_timer.get_current_time_in_milliseconds() / 1000, 1)
 
-            elif self.winner is self.player2 and self.player2.time is None:
-                print("2")
-                self.player2.time = current_time
+        if self.player1.finished and self.player1.time is None:
+            self.player1.time = current_time
 
-            elif self.winner is self.player1 and self.player2.finished is True and self.player2.time is None:
-                print("3")
-                self.player2.time = current_time
-
-            elif self.winner is self.player2 and self.player1.finished is True and self.player1.time is None:
-                print("4")
-                self.player1.time = current_time
+        elif self.player2.finished and self.player2.time is None:
+            self.player2.time = current_time
 
     def false_start_timing(self):
         if self.false_start_happened:
@@ -335,7 +348,7 @@ class Game:
     def run_timing_logic(self, screen, current_state):
         self.running_start_countdown_timer(screen)
         self.main_running_timer(screen)
-        self.record_winner_timings()
+        self.record_timings()
         self.false_start_timing()
         self.before_leaderboard_timer(current_state)
 
@@ -362,6 +375,7 @@ class Game:
                 if event.key == pygame.K_w:
                     if not self.player1.started:
                         self.player1.started = True
+                        # Players start at 70% of max speed
                         self.player1.speed = self.player1.max_speed - self.player1.max_speed * 0.3
                     else:
                         if self.player1.finished is False:
@@ -375,9 +389,10 @@ class Game:
                         if self.player2.finished is False:
                             self.player2.on_run_keybind()
 
-        self.move_background(self.background, self.player1, self.player2)
+        self.move_background()
         self.move_finish_line(self.finish_line)
-        self.player_movement(self.player1, self.player2)
+        self.player_movement()
+
         self.background.update(screen)
         self.finish_line.update(screen)
         self.player1.update_player(screen, self.finish_line)
@@ -385,9 +400,7 @@ class Game:
 
         self.false_start_logic()
         self.false_start_display(screen)
-
         self.run_timing_logic(screen, current_state)
-
         self.display_winner(screen)
 
         if self.winner is None:
