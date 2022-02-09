@@ -5,11 +5,19 @@ import util
 WHITE = (255, 255, 255)
 MAIN_FONT = "./font/PublicPixel-0W6DP.ttf"
 
+
 def load_highscore():
     f = open("highscore.txt", "r")
     highscore = f.read()
+    print(highscore)
     f.close()
     return highscore
+
+
+def record_highscore(winning_time):
+    f = open("highscore.txt", "w")
+    f.write(winning_time)
+    f.close()
 
 
 def load_winner():
@@ -121,19 +129,6 @@ class PlayerFlag:
         self.image.update(screen)
 
 
-class Text:
-    def __init__(self, font, font_size, text, color, position):
-        self.my_font = pygame.font.Font(font, font_size)
-        self.text_surface = self.my_font.render(text, False, color)
-        self.position = position
-
-    def update_position(self, position):
-        self.position = position
-
-    def display_text(self, screen):
-        screen.blit(self.text_surface, self.position)
-
-
 class Leaderboard:
     def __init__(self, current_state):
         # Next state could be loaded from a file containing the list of disciplines when multi disciplines are implemented. If it is equal to one, then the next state is the main menu
@@ -141,7 +136,7 @@ class Leaderboard:
         self.winner = load_winner()
         self.highscore = load_highscore()
 
-        self.highscore_text = Text(MAIN_FONT, 50, self.highscore, WHITE, (100, 200))
+        self.highscore_text = util.Text(self.highscore, (100, 200), MAIN_FONT, font_size=50, color=WHITE)
         self.previous_state = current_state.prev_state
         self.background = util.Image("backgroundMainMenu.png", 800, 450)
         self.background.rect.left = 0
@@ -149,14 +144,14 @@ class Leaderboard:
             self.base = util.Image("leaderboard_base1.png", 0, 0)
             self.player1_time = get_player_time(1)
             self.player2_time = get_player_time(2)
-            self.winner_text = Text(MAIN_FONT, 50, self.player1_time, WHITE, (100, 300))
+            self.winner_text = util.Text(self.player1_time, (100, 300), MAIN_FONT, font_size=50, color=WHITE)
             self.winning_time = self.player1_time
 
         else:
             self.base = util.Image("leaderboard_base2.png", 0, 0)
             self.player1_time = get_player_time(2)
             self.player2_time = get_player_time(1)
-            self.winner_text = Text(MAIN_FONT, 50, self.player2_time, WHITE, (100, 300))
+            self.winner_text = util.Text(self.player2_time, (100, 300), MAIN_FONT, font_size=50, color=WHITE)
             self.winning_time = self.player2_time
 
         self.base.resize(70)
@@ -167,9 +162,9 @@ class Leaderboard:
         self.highscore_base_position_x = self.base.rect.left + (self.highscore_base.get_image_width() / 2)
         self.highscore_base_position_y = self.base.rect.bottom + 125
         self.highscore_base.move(self.highscore_base_position_x, self.highscore_base_position_y)
-        self.highscore_text.update_position(winner_and_hs_text_pos(self.highscore_base, self.highscore_text.text_surface, 1))
+        self.highscore_text.set_position(winner_and_hs_text_pos(self.highscore_base, self.highscore_text.text_surface, 1))
         self.new_highscore = util.Image("new_highscore.png", (self.highscore_base.rect.right + 350), (self.highscore_base.rect.top + (self.highscore_base.get_image_height() / 2)))
-        self.winner_text.update_position(winner_and_hs_text_pos(self.highscore_base, self.winner_text.text_surface, 2))
+        self.winner_text.set_position(winner_and_hs_text_pos(self.highscore_base, self.winner_text.text_surface, 2))
 
         if self.winner == "player1":
             self.player1_flag = PlayerFlag(1, 1, self.base)
@@ -180,23 +175,23 @@ class Leaderboard:
 
         self.font_size = 65
 
-        self.player1_time_text = Text(MAIN_FONT, self.font_size, self.player1_time, WHITE, (100, 200))
-        self.player2_time_text = Text(MAIN_FONT, self.font_size, self.player2_time, WHITE, (100, 300))
+        self.player1_time_text = util.Text(self.player1_time, (100, 200), MAIN_FONT, font_size=self.font_size, color=WHITE)
+        self.player2_time_text = util.Text(self.player2_time, (100, 300), MAIN_FONT, font_size=self.font_size, color=WHITE)
         print("Player 1 Time: " + self.player1_time)
         print("Player 2 Time: " + self.player2_time)
 
         if self.winner == "player1":
             self.player1_time_text_pos = get_text_pos(self.player1_time_text.text_surface, self.base, 1)
-            self.player1_time_text.update_position(self.player1_time_text_pos)
+            self.player1_time_text.set_position(self.player1_time_text_pos)
             self.player2_time_text_pos = get_text_pos(self.player2_time_text.text_surface, self.base, 2)
-            self.player2_time_text.update_position(self.player2_time_text_pos)
+            self.player2_time_text.set_position(self.player2_time_text_pos)
 
         else:
 
             self.player1_time_text_pos = get_text_pos(self.player1_time_text.text_surface, self.base, 2)
-            self.player1_time_text.update_position(self.player1_time_text_pos)
+            self.player1_time_text.set_position(self.player1_time_text_pos)
             self.player2_time_text_pos = get_text_pos(self.player2_time_text.text_surface, self.base, 1)
-            self.player2_time_text.update_position(self.player2_time_text_pos)
+            self.player2_time_text.set_position(self.player2_time_text_pos)
 
         self.restart_button_pos = (1000, 825)
         self.next_button_pos = (self.restart_button_pos[0] + 400, self.restart_button_pos[1])
@@ -206,6 +201,12 @@ class Leaderboard:
         self.restart_button = util.Button("restart_button.png", 100, 100, None)
         self.restart_button.resize(50)
         self.restart_button.move(self.restart_button_pos[0], self.restart_button_pos[1])
+
+        print(self.winning_time)
+        print(self.highscore)
+        if self.winning_time < self.highscore:
+            print("Got here")
+            record_highscore(self.winning_time)
 
     def run_leaderboard(self, screen, current_state):
 
@@ -223,14 +224,14 @@ class Leaderboard:
         self.background.update(screen)
         self.base.update(screen)
         self.highscore_base.update(screen)
-        self.highscore_text.display_text(screen)
-        self.winner_text.display_text(screen)
+        self.highscore_text.render(screen)
+        self.winner_text.render(screen)
         self.next_button.update(screen)
         self.restart_button.update(screen)
         self.player1_flag.display_flag(screen)
         self.player2_flag.display_flag(screen)
-        self.player1_time_text.display_text(screen)
-        self.player2_time_text.display_text(screen)
+        self.player1_time_text.render(screen)
+        self.player2_time_text.render(screen)
         if self.winning_time < self.highscore:
             self.new_highscore.update(screen)
 

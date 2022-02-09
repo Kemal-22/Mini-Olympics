@@ -10,9 +10,12 @@ class Player(pygame.sprite.Sprite):
     def __init__(self, player_number):
         pygame.sprite.Sprite.__init__(self)
         defaultxpos = 800
-        defaultypos = 659
+        if player_number == 1:
+            defaultypos = 600
+        else:
+            defaultypos = 660
         self.finished = False
-        self.current_slowdown = 0.14  # Default 0.14
+        self.current_slowdown = 0.14  # Default 0.14 Doesnt work anymore
         self.acceleration = 2  # Default 1
         self.max_speed = 20
         self.started = False
@@ -135,7 +138,7 @@ class TimerWidget:
 
 class Game:
     def __init__(self):
-        self.background = util.Image("background20k.png", 800, 450)
+        self.background = util.Image("background20k1.png", 800, 450)
         self.background.rect.left = 0
         self.pixels_per_meter = 90
         self.finish_line = util.Image("finish_line.png", 8500, 853)
@@ -267,7 +270,7 @@ class Game:
                 self.player1.current_sprite_rect.centerx -= self.player2.speed - self.player1.speed
                 self.player2.is_in_front = True
                 self.player1.is_in_front = False
-            elif self.player1.speed > self.player2.speed:
+            elif self.player1.speed >= self.player2.speed:
                 self.player2.current_sprite_rect.centerx -= self.player1.speed - self.player2.speed
                 self.player2.is_in_front = False
                 self.player1.is_in_front = True

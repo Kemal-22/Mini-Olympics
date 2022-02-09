@@ -7,11 +7,12 @@ class Button:
         self.rect = self.image.get_rect()
         self.rect.center = (position_x, position_y)
         self.callback = callback
+        self.position_x = position_x
+        self.position_y = position_y
 
-    def check_click(self, current_state, new_state):
-        x, y = pygame.mouse.get_pos()
-        if pygame.mouse.get_pressed()[0]:
-            if self.rect.collidepoint(x, y):
+    def check_click(self, current_state, new_state, event):
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if pygame.mouse.get_pressed()[0] and self.is_hovering():
                 if new_state is not False:
                     current_state.state = new_state
                 if self.callback is not None:
@@ -42,12 +43,23 @@ class Button:
     def move(self, position_x, position_y):
         self.rect.center = (position_x, position_y)
 
+    def set_button_image(self, image):
+        self.image = pygame.image.load(image).convert_alpha()
+        self.rect = self.image.get_rect()
+        self.rect.center = (self.position_x, self.position_y)
+
+    def is_hovering(self):
+        mouse = pygame.mouse.get_pos()
+        return self.rect.collidepoint(mouse[0], mouse[1])
+
 
 class Image:
     def __init__(self, image, position_x, position_y):
         self.image = pygame.image.load(image).convert_alpha()
         self.rect = self.image.get_rect()
         self.rect.center = (position_x, position_y)
+        self.position_x = position_x
+        self.position_y = position_y
 
     def update(self, screen):
         screen.blit(self.image, self.rect)
@@ -72,6 +84,11 @@ class Image:
 
     def move(self, position_x, position_y):
         self.rect.center = (position_x, position_y)
+
+    def set_image(self, image):
+        self.image = pygame.image.load(image).convert_alpha()
+        self.rect = self.image.get_rect()
+        self.rect.center = (self.position_x, self.position_y)
 
 
 class State:
@@ -99,11 +116,11 @@ def read_discipline():
 def save_country(player_flag, ID):
     if ID == 1:
         f = open("player1_flag.txt", "w")
-        f.write(player_flag.name_list[player_flag.currentimage])
+        f.write(player_flag.name_list[player_flag.current_image])
         f.close()
     elif ID == 2:
         f = open("player2_flag.txt", "w")
-        f.write(player_flag.name_list[player_flag.currentimage])
+        f.write(player_flag.name_list[player_flag.current_image])
         f.close()
 
 
