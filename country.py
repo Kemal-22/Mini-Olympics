@@ -2,7 +2,7 @@ import pygame
 import util
 import math
 
-MAIN_FONT = "./font/PublicPixel-0W6DP.ttf"
+MAIN_FONT = "./Assets/fonts/PublicPixel-0W6DP.ttf"
 paths = {
     "button_left": "./Assets/country_selection/button_left.png",
     "button_left_active": "./Assets/country_selection/button_left_active.png",
@@ -15,7 +15,6 @@ paths = {
     "back_button_active": "./Assets/single_event_menu/backbuttonactive.png",
     "background": "backgroundfull3.png"
 }
-
 
 
 class TimingClock:
@@ -61,15 +60,11 @@ def load_flag_names():
     return countries_array
 
 
-def load_discipline():
-    pass
-
-
 def load_flag_images():
     countries_array = load_flag_list()
     countries_images_array = []
     for country in countries_array:
-        flag = util.Image("./Assets/flags/" + country + ".png", 100, 100)
+        flag = util.Image("./Assets/flags/" + country + ".png", (100, 100))
         countries_images_array.append(flag)
 
     return countries_images_array
@@ -98,11 +93,11 @@ class Flag:
         self.currentimageobject = self.images[0]
         self.id = id
 
-        self.button_left = util.Button(paths["button_left"], self.pos_x - 50, self.pos_y, None)
+        self.button_left = util.Button(paths["button_left"], (self.pos_x - 50, self.pos_y))
         self.button_left.resize(200)
         self.button_left.move(self.pos_x - 265, self.pos_y)
 
-        self.button_right = util.Button(paths["button_right"], self.pos_x - 50, self.pos_y, None)
+        self.button_right = util.Button(paths["button_right"], (self.pos_x - 50, self.pos_y))
         self.button_right.resize(200)
         self.button_right.move(self.pos_x + 265, self.pos_y)
 
@@ -164,16 +159,16 @@ class Flag:
         self.button_left.update(screen)
         self.button_right.update(screen)
 
-    def on_button_click(self, other_player):
-        if self.button_left.check_click_no_state_change():
+    def on_button_click(self, other_player, event):
+        if self.button_left.check_click(event):
             self.change_current_image("down", other_player)
-        elif self.button_right.check_click_no_state_change():
+        elif self.button_right.check_click(event):
             self.change_current_image("up", other_player)
 
 
 class CountriesSelection:
     def __init__(self):
-        self.background = util.Image("backgroundfull3.png", 800, 450)
+        self.background = util.Image("backgroundfull3.png", (800, 450))
         self.player1_flag = Flag(1)
         self.player2_flag = Flag(2)
         self.country_names = load_flag_names()
@@ -187,7 +182,7 @@ class CountriesSelection:
         self.player1_country_name = self.country_names[self.player1_flag.current_image]
         self.player1_country_name_text = util.Text(self.player1_country_name, (0, 0), MAIN_FONT, color=(255, 255, 255))
         self.player1_flag_background = util.Image(paths["flag_background"],
-                                                  self.flag1_position[0], self.flag1_position[1])
+                                                  self.flag1_position)
         self.player1_flag_background.resize(55)
         self.player1_flag_background.move(self.flag1_position[0], self.flag1_position[1])
 
@@ -197,14 +192,14 @@ class CountriesSelection:
         self.player2_country_name = self.country_names[self.player2_flag.current_image]
         self.player2_country_name_text = util.Text(self.player2_country_name, (0, 0), MAIN_FONT, color=(255, 255, 255))
         self.player2_flag_background = util.Image(paths["flag_background"],
-                                                  self.flag1_position[0], self.flag1_position[1])
+                                                  self.flag2_position)
         self.player2_flag_background.resize(55)
         self.player2_flag_background.move(self.flag2_position[0], self.flag2_position[1])
 
-        self.back_button = util.Button(paths["back_button"], 800, 800, None)
+        self.back_button = util.Button(paths["back_button"], (800, 800))
         self.back_button.resize(150)
         self.back_button.move(950, 825)
-        self.play_button = util.Button(paths["play_button"], 800, 800, None)
+        self.play_button = util.Button(paths["play_button"], (800, 800))
         self.play_button.resize(150)
         self.play_button.move(1375, 825)
 
@@ -212,16 +207,15 @@ class CountriesSelection:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                self.player1_flag.on_button_click(self.player2_flag)
-                self.player2_flag.on_button_click(self.player1_flag)
-            if self.play_button.check_click(current_state, util.read_discipline(), event):
+
+            self.player1_flag.on_button_click(self.player2_flag, event)
+            self.player2_flag.on_button_click(self.player1_flag, event)
+
+            if self.play_button.check_click_and_change_state(current_state, util.read_discipline(), event):
                 util.save_country(self.player1_flag, 1)
                 util.save_country(self.player2_flag, 2)
-                self.loading_timer = TimingClock
-                self.play_selected = True
 
-            self.back_button.check_click(current_state, "single_discipline_menu", event)
+            self.back_button.check_click_and_change_state(current_state, "single_discipline_menu", event)
 
         self.background.update(screen)
 

@@ -1,7 +1,7 @@
 import pygame
 import util
 
-MAIN_FONT = "back-to-1982.regular.ttf"
+MAIN_FONT = "./Assets/fonts/PublicPixel-0W6DP.ttf"
 WHITE = (255, 255, 255)
 
 

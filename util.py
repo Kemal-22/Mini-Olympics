@@ -2,27 +2,26 @@ import pygame
 
 
 class Button:
-    def __init__(self, image, position_x, position_y, callback):
+    def __init__(self, image, position, callback=None):
         self.image = pygame.image.load(image).convert_alpha()
         self.rect = self.image.get_rect()
-        self.rect.center = (position_x, position_y)
+        self.rect.center = position
         self.callback = callback
-        self.position_x = position_x
-        self.position_y = position_y
+        self.position_x = position[0]
+        self.position_y = position[1]
 
-    def check_click(self, current_state, new_state, event):
+    def check_click_and_change_state(self, current_state, new_state, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
             if pygame.mouse.get_pressed()[0] and self.is_hovering():
-                if new_state is not False:
-                    current_state.state = new_state
+                current_state.change_state(new_state)
                 if self.callback is not None:
                     self.callback()
                 return True
 
-    def check_click_no_state_change(self):
-        x, y = pygame.mouse.get_pos()
-        if self.rect.collidepoint(x, y):
-            return True
+    def check_click(self, event):
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if pygame.mouse.get_pressed()[0] and self.is_hovering():
+                return True
 
     def update(self, screen):
         screen.blit(self.image, self.rect)
@@ -54,12 +53,12 @@ class Button:
 
 
 class Image:
-    def __init__(self, image, position_x, position_y):
+    def __init__(self, image, position):
         self.image = pygame.image.load(image).convert_alpha()
         self.rect = self.image.get_rect()
-        self.rect.center = (position_x, position_y)
-        self.position_x = position_x
-        self.position_y = position_y
+        self.rect.center = position
+        self.position_x = position[0]
+        self.position_y = position[1]
 
     def update(self, screen):
         screen.blit(self.image, self.rect)
@@ -136,14 +135,6 @@ def load_country(ID):
         country = f.read()
         f.close()
         return country
-
-
-class Initialized:
-
-    def __init__(self):
-        self.running_initialized = False
-        self.leaderboard_initialized = False
-        self.jumping_initialized = False
 
 
 class Text:

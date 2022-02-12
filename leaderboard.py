@@ -3,7 +3,7 @@ import util
 
 
 WHITE = (255, 255, 255)
-MAIN_FONT = "./font/PublicPixel-0W6DP.ttf"
+MAIN_FONT = "./Assets/fonts/PublicPixel-0W6DP.ttf"
 
 
 def load_highscore():

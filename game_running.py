@@ -3,7 +3,20 @@ import util
 import math
 
 
-MAIN_FONT = "./font/PublicPixel-0W6DP.ttf"
+MAIN_FONT = "./Assets/fonts/PublicPixel-0W6DP.ttf"
+
+paths = {
+    "background": "./Assets/games/sprint/background20k1.png",
+    "number_1": "./Assets/games/sprint/count_1.png",
+    "number_2": "./Assets/games/sprint/count_2.png",
+    "number_3": "./Assets/games/sprint/count_3.png",
+    "false_start": "./Assets/games/sprint/false_start.png",
+    "finish_line": "./Assets/games/sprint/finish_line.png",
+    "player_1_text": "./Assets/games/sprint/player_1_text.png",
+    "player_2_text": "./Assets/games/sprint/player_2_text.png",
+    "winner_text": "./Assets/games/sprint/winner.png",
+    "timing_widget": "./Assets/games/sprint/time_image.png"
+}
 
 
 class Player(pygame.sprite.Sprite):
@@ -30,7 +43,7 @@ class Player(pygame.sprite.Sprite):
         self.sprite_size_scale = 0.6   # Scales the players size on screen
         # Load all animation states and scale them according to sprite scale
         for animation_state in range(0, 7):
-            temp_sprite = pygame.image.load("./characters/" + self.country + "/" + str(animation_state) + ".png")
+            temp_sprite = pygame.image.load("./Assets/characters/" + self.country + "/" + str(animation_state) + ".png")
             temp_sprite_width = temp_sprite.get_width()
             temp_sprite_height = temp_sprite.get_height()
             temp_sprite = pygame.transform.scale(temp_sprite, (round(temp_sprite_width * self.sprite_size_scale),
@@ -119,7 +132,7 @@ class TimerWidget:
     def __init__(self):
         self.image_pos_x = 1400
         self.image_pos_y = 800
-        self.image = util.Image("time_image.png", self.image_pos_x, self.image_pos_y)
+        self.image = util.Image(paths["timing_widget"], (self.image_pos_x, self.image_pos_y))
         self.image.resize(30)
         self.image.move(self.image_pos_x, self.image_pos_y)
 
@@ -138,18 +151,19 @@ class TimerWidget:
 
 class Game:
     def __init__(self):
-        self.background = util.Image("background20k1.png", 800, 450)
+        self.background = util.Image(paths["background"], (800, 450))
         self.background.rect.left = 0
+        self.sprint_distance = 100
         self.pixels_per_meter = 90
-        self.finish_line = util.Image("finish_line.png", 8500, 853)
+        self.finish_line = util.Image(paths["finish_line"], (self.sprint_distance * self.pixels_per_meter, 853))
         self.finish_line.rect.left = 10 * self.pixels_per_meter + 800
         self.finish_line.rect.bottom = 900
         self.finish_line_spawned = False
 
-        self.start_countdown_number_3 = util.Image("count_3.png", 0, 0)
-        self.start_countdown_number_2 = util.Image("count_2.png", 0, 0)
-        self.start_countdown_number_1 = util.Image("count_1.png", 0, 0)
-        self.false_start_image = util.Image("false_start.png", 800, 450)
+        self.start_countdown_number_3 = util.Image(paths["number_3"], (0, 0))
+        self.start_countdown_number_2 = util.Image(paths["number_2"], (0, 0))
+        self.start_countdown_number_1 = util.Image(paths["number_1"], (0, 0))
+        self.false_start_image = util.Image(paths["false_start"], (800, 450))
 
         self.player1 = Player(1)
         self.player2 = Player(2)
@@ -168,9 +182,9 @@ class Game:
         self.game_timer_widget = TimerWidget()
         self.false_start_happened = False
 
-        self.player1_text = util.Image("player_1_text.png", 400, 100)
-        self.player2_text = util.Image("player_2_text.png", 1200, 100)
-        self.winner_text = util.Image("winner.png", 800, 350)
+        self.player1_text = util.Image(paths["player_1_text"], (400, 100))
+        self.player2_text = util.Image(paths["player_2_text"], (1200, 100))
+        self.winner_text = util.Image(paths["winner_text"], (800, 350))
 
         self.resize_and_place_images()
 
@@ -263,6 +277,7 @@ class Game:
             self.player1.current_sprite_rect.centerx = 800
         if self.player2.current_sprite_rect.centerx > 800:
             self.player2.current_sprite_rect.centerx = 800
+
         # This part of the code keeps the player in front in the center of the screen while moving the second player
         # forwards or backwards. Also keeps track of who is in front.
 
@@ -317,7 +332,7 @@ class Game:
             return True
 
         if self.end_timer.get_current_time_in_seconds() >= 3:
-            current_state.state = "leaderboard"
+            current_state.change_state("leaderboard")
             current_state.prev_state = "running"
             return True
 

@@ -1,7 +1,7 @@
 import util
 import pygame
 
-MAIN_FONT = "./font/PublicPixel-0W6DP.ttf"
+MAIN_FONT = "./Assets/fonts/PublicPixel-0W6DP.ttf"
 # Paths
 paths = {
     "background": "backgroundfull3.png",
@@ -20,24 +20,24 @@ paths = {
 class MainMenu:
     def __init__(self, screen):
         self.screen = screen
-        self.main_menu_bg = util.Image(paths["background"], 800, 450)
+        self.main_menu_bg = util.Image(paths["background"], (800, 450))
 
-        self.single_discipline_button = util.Button(paths["single_event"], 590, 350, None)
+        self.single_discipline_button = util.Button(paths["single_event"], (590, 350))
         self.single_event_tooltip = util.Text("Choose and play a single event from the olympics.", (50, 800),
                                               MAIN_FONT, color=(255, 255, 255), font_size=24)
         self.single_event_tooltip.set_position((30 + self.single_event_tooltip.width / 2, 865))
 
-        self.the_olympics_button = util.Button(paths["the_olympics"], 1010, 350, None)
+        self.the_olympics_button = util.Button(paths["the_olympics"], (1010, 350))
         self.olympics_tooltip = util.Text("Compete in all olympic events.", (50, 800),
                                               MAIN_FONT, color=(255, 255, 255), font_size=24)
         self.olympics_tooltip.set_position((30 + self.olympics_tooltip.width / 2, 865))
 
-        self.settings_button = util.Button(paths["settings"], 590, 610, None)
+        self.settings_button = util.Button(paths["settings"], (590, 610))
         self.settings_button_tooltip = util.Text("Adjust the game's settings.", (50, 800),
                                           MAIN_FONT, color=(255, 255, 255), font_size=24)
         self.settings_button_tooltip.set_position((30 + self.settings_button_tooltip.width / 2, 865))
 
-        self.quit_button = util.Button(paths["quit"], 1010, 610, None)
+        self.quit_button = util.Button(paths["quit"], (1010, 610))
         self.quit_button_tooltip = util.Text("Quit the game.", (50, 800),
                                                  MAIN_FONT, color=(255, 255, 255), font_size=24)
         self.quit_button_tooltip.set_position((30 + self.quit_button_tooltip.width / 2, 865))
@@ -46,10 +46,10 @@ class MainMenu:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
-            self.single_discipline_button.check_click(current_state, "single_discipline_menu", event)
-            self.the_olympics_button.check_click(current_state, "main_menu", event)
-            self.settings_button.check_click(current_state, "single_discipline_menu", event)
-            if self.quit_button.check_click(current_state, None, event):
+            self.single_discipline_button.check_click_and_change_state(current_state, "single_discipline_menu", event)
+            self.the_olympics_button.check_click_and_change_state(current_state, "main_menu", event)
+            self.settings_button.check_click_and_change_state(current_state, "single_discipline_menu", event)
+            if self.quit_button.check_click(event):
                 pygame.quit()
 
         self.main_menu_bg.update(self.screen)

@@ -11,14 +11,15 @@ paths = {
     "back_active": "./Assets/single_event_menu/backbuttonactive.png"
 }
 
+
 class SingleDisciplineMenu:
     def __init__(self, screen):
         self.screen = screen
-        self.discipline_select_bg = util.Image(paths["background"], 800, 450)
-        self.running100 = util.Button(paths["running100"], 800, 300, None)
-        self.hurdles110 = util.Button(paths["hurdles"], 800, 475, None)
-        self.discipline_select_disc3 = util.Button(paths["running100"], 800, 650, None)
-        self.back_button = util.Button(paths["back"], 1410, 835, None)
+        self.discipline_select_bg = util.Image(paths["background"], (800, 450))
+        self.running100 = util.Button(paths["running100"], (800, 300))
+        self.hurdles110 = util.Button(paths["hurdles"], (800, 475))
+        self.discipline_select_disc3 = util.Button(paths["running100"], (800, 650))
+        self.back_button = util.Button(paths["back"], (1410, 835))
         self.back_button.resize(150)
         self.back_button.move(1410, 835)
 
@@ -26,15 +27,15 @@ class SingleDisciplineMenu:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
-            if self.running100.check_click(current_state, "countries", event):
+            if self.running100.check_click_and_change_state(current_state, "countries", event):
                 util.save_discipline("running")
                 util.read_discipline()
 
-            elif self.hurdles110.check_click(current_state, "countries", event):
+            elif self.hurdles110.check_click_and_change_state(current_state, "countries", event):
                 util.save_discipline("jumping")
                 util.read_discipline()
-            self.discipline_select_disc3.check_click(current_state, False, event)
-            self.back_button.check_click(current_state, "main_menu", event)
+            self.discipline_select_disc3.check_click_and_change_state(current_state, "running", event)
+            self.back_button.check_click_and_change_state(current_state, "main_menu", event)
 
         self.discipline_select_bg.update(self.screen)
 
