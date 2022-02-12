@@ -5,12 +5,14 @@ MAIN_FONT = "./font/PublicPixel-0W6DP.ttf"
 # Paths
 paths = {
     "background": "backgroundfull3.png",
-    "single_event": "./Assets/MainMenu/singleevent.png",
-    "single_event_active": "./Assets/MainMenu/singleeventactive.png",
-    "the_olympics": "./Assets/MainMenu/theolympics.png",
-    "the_olympics_active": "./Assets/MainMenu/theolympicsactive.png",
-    "settings": "./Assets/MainMenu/settings.png",
-    "settings_active": "./Assets/MainMenu/settingsactive.png"
+    "single_event": "./Assets/main_menu/singleevent.png",
+    "single_event_active": "./Assets/main_menu/singleeventactive.png",
+    "the_olympics": "./Assets/main_menu/theolympics.png",
+    "the_olympics_active": "./Assets/main_menu/theolympicsactive.png",
+    "settings": "./Assets/main_menu/settings.png",
+    "settings_active": "./Assets/main_menu/settingsactive.png",
+    "quit": "./Assets/main_menu/quit.png",
+    "quit_active": "./Assets/main_menu/quitactive.png"
 
 }
 
@@ -25,17 +27,17 @@ class MainMenu:
                                               MAIN_FONT, color=(255, 255, 255), font_size=24)
         self.single_event_tooltip.set_position((30 + self.single_event_tooltip.width / 2, 865))
 
-        self.the_olympics_button = util.Button("./Assets/MainMenu/theolympics.png", 1010, 350, None)
+        self.the_olympics_button = util.Button(paths["the_olympics"], 1010, 350, None)
         self.olympics_tooltip = util.Text("Compete in all olympic events.", (50, 800),
                                               MAIN_FONT, color=(255, 255, 255), font_size=24)
         self.olympics_tooltip.set_position((30 + self.olympics_tooltip.width / 2, 865))
 
-        self.settings_button = util.Button("./Assets/MainMenu/settings.png", 590, 610, None)
+        self.settings_button = util.Button(paths["settings"], 590, 610, None)
         self.settings_button_tooltip = util.Text("Adjust the game's settings.", (50, 800),
                                           MAIN_FONT, color=(255, 255, 255), font_size=24)
         self.settings_button_tooltip.set_position((30 + self.settings_button_tooltip.width / 2, 865))
 
-        self.quit_button = util.Button("./Assets/MainMenu/quit.png", 1010, 610, None)
+        self.quit_button = util.Button(paths["quit"], 1010, 610, None)
         self.quit_button_tooltip = util.Text("Quit the game.", (50, 800),
                                                  MAIN_FONT, color=(255, 255, 255), font_size=24)
         self.quit_button_tooltip.set_position((30 + self.quit_button_tooltip.width / 2, 865))
@@ -61,27 +63,26 @@ class MainMenu:
         self.single_discipline_button.update(self.screen)
 
         if self.the_olympics_button.is_hovering():
-            self.the_olympics_button.set_button_image("./Assets/MainMenu/theolympicsactive.png")
+            self.the_olympics_button.set_button_image(paths["the_olympics_active"])
             self.olympics_tooltip.render(self.screen)
         else:
-            self.the_olympics_button.set_button_image("./Assets/MainMenu/theolympics.png")
+            self.the_olympics_button.set_button_image(paths["the_olympics"])
 
         self.the_olympics_button.update(self.screen)
 
         if self.settings_button.is_hovering():
-            self.settings_button.set_button_image("./Assets/MainMenu/settingsactive.png")
+            self.settings_button.set_button_image(paths["settings_active"])
             self.settings_button_tooltip.render(self.screen)
         else:
-            self.settings_button.set_button_image("./Assets/MainMenu/settings.png")
+            self.settings_button.set_button_image(paths["settings"])
 
         self.settings_button.update(self.screen)
 
         if self.quit_button.is_hovering():
-            self.quit_button.set_button_image("./Assets/MainMenu/quitactive.png")
+            self.quit_button.set_button_image(paths["quit_active"])
             self.quit_button_tooltip.render(self.screen)
         else:
-            self.quit_button.set_button_image("./Assets/MainMenu/quit.png")
-
+            self.quit_button.set_button_image(paths["quit"])
 
         self.quit_button.update(self.screen)
 
