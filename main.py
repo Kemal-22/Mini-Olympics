@@ -5,6 +5,8 @@ import game_running
 import leaderboard
 import game_jumping
 import ctypes
+import single_event_menu
+import main_menu
 
 pygame.init()
 pygame.font.init()
@@ -168,19 +170,18 @@ running = True
 player1_flag = country.Flag(1)
 player2_flag = country.Flag(2)
 
-initialization_checker = util.Initialized()
-single_discipline_menu_obj = SingleDisciplineMenu()
+single_discipline_menu_obj = single_event_menu.SingleDisciplineMenu(screen)
 country_selection_obj = country.CountriesSelection(player1_flag, player2_flag)
-main_menu_obj = MainMenu()
+main_menu_obj = main_menu.MainMenu(screen)
 
 game = None
 leaderboard_obj = None
 
 while running:
     if current_state.state == "main_menu":
-        main_menu_obj.update()
+        main_menu_obj.update(current_state)
     if current_state.state == "single_discipline_menu":
-        single_discipline_menu_obj.update()
+        single_discipline_menu_obj.update(current_state)
     if current_state.state == "countries":
         country_selection_obj.update(screen, current_state)
 
