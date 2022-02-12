@@ -201,6 +201,8 @@ class Game:
                 return False
 
     def false_start_logic(self):
+        if self.winner is not None:
+            return False
         if self.check_for_false_start() == self.player1:
             self.winner = self.player2
             self.player1.finished = True
